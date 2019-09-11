@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -45,11 +44,11 @@ func jsonEnv(w http.ResponseWriter, req *http.Request) {
 }
 
 func health(w http.ResponseWriter, req *http.Request) {
-	w.WriteHeader(200)
+	w.Write([]byte("ok"))
 }
 
 func versionEndpoint(w http.ResponseWriter, req *http.Request) {
-	fmt.Fprintf(w, version)
+	w.Write([]byte(version))
 }
 
 func main() {
@@ -60,6 +59,7 @@ func main() {
 	http.HandleFunc("/version", versionEndpoint)
 	http.Handle("/metrics", promhttp.Handler())
 
+	prometheus.MustRegister(prometheus.NewBuildInfoCollector())
 	prometheus.MustRegister(infoMetric)
 	infoMetric.WithLabelValues(version).Set(1)
 
